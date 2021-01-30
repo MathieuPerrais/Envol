@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "SwiftTools",
+        "repositoryURL": "https://github.com/MathieuPerrais/SwiftTools.git",
+        "state": {
+          "branch": null,
+          "revision": "16b09e320ab7289d22051efcf828abc2b1835c56",
+          "version": "0.0.1"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
