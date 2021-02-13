@@ -21,7 +21,7 @@ public class URLSessionLoader: HTTPLoader {
         
         guard let url = request.url else {
             // we couldn't construct a proper URL out of the request's URLComponents
-            task.fail(.invalidRequest) // TODO: try to add underlying error? expand the .fail method
+            task.fail(.invalidRequest, error: HTTPRequestError.urlMissing)
             return
         }
         

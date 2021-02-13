@@ -15,7 +15,7 @@ precedencegroup LoaderChainingPrecedence {
 infix operator --> : LoaderChainingPrecedence
 
 @discardableResult
-public func --> (lhs: HTTPLoader?, rhs: HTTPLoader?) -> HTTPLoader? { // TODO: explore why it's optional here
+public func --> (lhs: HTTPLoader?, rhs: HTTPLoader?) -> HTTPLoader? {
     lhs?.nextLoader = rhs
     return lhs ?? rhs
 }

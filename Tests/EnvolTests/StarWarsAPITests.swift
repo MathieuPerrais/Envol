@@ -8,44 +8,33 @@
 import XCTest
 @testable import Envol
 
-extension ServerEnvironment {
 
-    public static let development = ServerEnvironment(host: "swapi.dev", pathPrefix: "/api")
-    public static let qa = ServerEnvironment(host: "qa-1.example.com", pathPrefix: "/api")
-    public static let staging = ServerEnvironment(host: "api-staging.example.com", pathPrefix: "/api")
-    public static let production = ServerEnvironment(host: "api.example.com", pathPrefix: "/api")
-
-}
 
 class StarWarsAPITests: XCTestCase {
 
     func test_200_OK_WithValidBody() {
         
         // Create an expectation for a  download task.
-        let expectation = XCTestExpectation(description: "TEST")
+        let expectation = XCTestExpectation(description: "Star Wars API test_200_OK_WithValidBody loaded in time")
         
-        let loader: HTTPLoader! =
-            ResetGuard() -->
-            CancelRequestsOnReset() -->
-            Throttle(maximumNumberOfRequests: 20) -->
-            ApplyEnvironment(environment: .development) -->
-            PrintInfo() -->
-            URLSessionLoader(session: URLSession.shared)
-        
-        
-        let task = StarWarsAPI(loader: loader).requestPeople {
-            XCTAssert(true)
-            
-            expectation.fulfill()
+        let _ = StarWarsConnection.request(.peopleJSON(id: 1)) { (result) in
+            switch result {
+            case .success(let response):
+                print(response.body)
+                XCTAssert(response.status == HTTPStatus.ok, "Response status code is 200 as expected")
+                expectation.fulfill()
+                
+            case .failure(let error):
+                print(error)
+                XCTFail("Request failure - error: \(error)")
+            }
         }
-        
-//        task.cancel()
         
         // Wait until the expectation is fulfilled, with a timeout of 10 seconds.
         wait(for: [expectation], timeout: 10.0)
     }
     
-    
+    // --------- MOCKLOADER TODO ---------
     
 //    let mock = MockLoader()
 //    lazy var api: StarWarsAPI = { StarWarsAPI(loader: mock) }()

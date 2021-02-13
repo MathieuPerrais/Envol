@@ -8,6 +8,28 @@
 import Foundation
 
 open class HTTPLoader {
+    
+    /// Return a new instance of a default HTTPLoader with a standard chain:
+    ///
+    /// ResetGuard() -->CancelRequestsOnReset() --> Throttle(maximumNumberOfRequests: [default 30]) -->
+    /// ApplyEnvironment(environment: [to be provided]) -->PrintInfo() -->URLSessionLoader(session: [default URLSession.shared])
+    public static func getDefault(serverEnvironment: ServerEnvironment,
+                           maximumNumberOfRequests: UInt = 30,
+                           session: URLSession = URLSession.shared) -> HTTPLoader {
+        let loader = ResetGuard() -->
+            CancelRequestsOnReset() -->
+            Throttle(maximumNumberOfRequests: maximumNumberOfRequests) -->
+            ApplyEnvironment(environment: serverEnvironment) -->
+            PrintInfo() -->
+            URLSessionLoader(session: session)
+        
+        guard let defaultLoader = loader else {
+          fatalError("Envol/HTTPLoader.swift: HTTPLoader.getDefault() returned nil, it shouldn't, investigate changes in the library code.")
+        }
+        
+        return defaultLoader
+    }
+    
 
     public var nextLoader: HTTPLoader? {
         willSet {

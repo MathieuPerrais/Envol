@@ -7,6 +7,10 @@
 
 import Foundation
 
+enum HTTPRequestError: Error {
+    case urlMissing
+}
+
 public struct HTTPRequest {
     public let id = UUID()
     private var urlComponents = URLComponents()
@@ -16,8 +20,10 @@ public struct HTTPRequest {
     
     private var options = [ObjectIdentifier: Any]()
     
-    public init() {
+    public init(path: String = "", queryItems: [URLQueryItem]? = nil) {
         urlComponents.scheme = "https"
+        urlComponents.path = path
+        urlComponents.queryItems = queryItems
     }
     
     public subscript<O: HTTPRequestOption>(option type: O.Type) -> O.Value {
@@ -51,6 +57,11 @@ public extension HTTPRequest {
     var path: String {
         get { urlComponents.path }
         set { urlComponents.path = newValue }
+    }
+    
+    var query: [URLQueryItem]? {
+        get { urlComponents.queryItems }
+        set { urlComponents.queryItems = newValue }
     }
     
     var url: URL? {
