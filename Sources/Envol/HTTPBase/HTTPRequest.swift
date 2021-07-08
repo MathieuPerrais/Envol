@@ -59,13 +59,34 @@ public extension HTTPRequest {
         set { urlComponents.path = newValue }
     }
     
-    var query: [URLQueryItem]? {
+    var queryItems: [URLQueryItem]? {
         get { urlComponents.queryItems }
         set { urlComponents.queryItems = newValue }
     }
     
     var url: URL? {
         get { urlComponents.url }
+    }
+}
+
+extension HTTPRequest {
+    
+    /// Merge the array of additional query items provided to the `queryItems` of the Request it is called on.
+    /// - Parameters:
+    ///   - queryItems: The Array of `URLQueryItem` to add to the current request
+    ///   - overwrite: Boolean that indicates if the argument values should replace what is currently in the Request if there is a conflict
+    mutating func mergeQueryItems(_ queryItems: [URLQueryItem], overwrite: Bool = false) {
+        if overwrite == false {
+            self.queryItems = (self.queryItems ?? [URLQueryItem]()) + queryItems.filter { queryItem in
+                return !(self.queryItems?.contains { $0.name == queryItem.name } ?? false)
+            }
+        } else {
+            self.queryItems?.removeAll(where: { item in
+                return queryItems.contains { $0.name == item.name }
+            })
+            
+            self.queryItems = (self.queryItems ?? [URLQueryItem]()) + queryItems
+        }
     }
 }
 

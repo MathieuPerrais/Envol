@@ -43,10 +43,14 @@ public class Connection {
 
 extension Connection {
     // Future<...> is a Combine-provided type that conforms to the Publisher protocol
-    public func publisher<ResponseType>(for request: Request<ResponseType>) -> Future<Response<ResponseType>, Error> {
+    public func publisher<ResponseType>(for request: Request<ResponseType>) -> AnyPublisher<Response<ResponseType>, Error> {
+        var task: HTTPTask?
         return Future { promise in
-            self.request(request, completion: promise)
-        }
+            task = self.request(request, completion: promise)
+        }.handleEvents(receiveCancel: {
+            task?.cancel()
+        }).eraseToAnyPublisher()
+
     }
 
     // This provides a "materialized" publisher, needed by SwiftUI's View.onReceive(...) modifier

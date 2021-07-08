@@ -32,8 +32,11 @@ public class ApplyEnvironment: HTTPLoader {
         let prefix = copy.path.hasPrefix("/") ? "" : "/"
         copy.path = requestEnvironment.pathPrefix + prefix + copy.path
         
-        // Merge the query items from the environment (specific request headers have priority)
+        // Merge the headers from the environment (specific request headers have priority)
         copy.headers.merge(environment.headers) { (current, _) in current }
+        
+        // Merge the query items from the environment (specific request query items have priority)
+        copy.mergeQueryItems(environment.queryItems, overwrite: false)
         
         task.updateRequest(copy)
         super.load(task: task)
