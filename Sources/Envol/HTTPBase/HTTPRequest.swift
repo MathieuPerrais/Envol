@@ -15,7 +15,7 @@ public struct HTTPRequest {
     public let id = UUID()
     private var urlComponents = URLComponents()
     public var method: HTTPMethod = .get
-    public var headers: [String: String] = [:] // Improve type later (case insensitivity)
+    public var headers: [String: String] = [:] // Improve type later (case insensitivity) (Property wrapper forcing lowercase?)
     public var body: HTTPBody = EmptyBody()
     
     private var options = [ObjectIdentifier: Any]()
@@ -26,6 +26,8 @@ public struct HTTPRequest {
         urlComponents.queryItems = queryItems
     }
     
+    
+    // Unlimited Request Options dictionary management
     public subscript<O: HTTPRequestOption>(option type: O.Type) -> O.Value {
         get {
             // create the unique identifier for this type as our lookup key
@@ -46,6 +48,7 @@ public struct HTTPRequest {
     }
 }
 
+// Exposing the underlying URLRequest attributes
 public extension HTTPRequest {
     var scheme: String { urlComponents.scheme ?? "https" }
     
@@ -69,7 +72,18 @@ public extension HTTPRequest {
     }
 }
 
+// Convenience for merging request attributes with the specific Environment attributes
 extension HTTPRequest {
+    /// Merge the Dictionary of Headers provided to the `headers` of the Request it is called on.
+    /// - Parameters:
+    ///   - headers: The Dictionary of Headers `[String: String]` to add to the current request
+    ///   - overwrite: Boolean that indicates if the argument values should replace what is currently in the Request if there is a conflict
+    mutating func mergeHeaders(_ headers: [String: String], overwrite: Bool = false) {
+        // Merge the headers from the environment (specific request headers have priority)
+        self.headers.merge(headers) { (original, new) in
+            return overwrite ? new : original
+        }
+    }
     
     /// Merge the array of additional query items provided to the `queryItems` of the Request it is called on.
     /// - Parameters:
